@@ -1,0 +1,7 @@
+add 10
+add 5
+print
+scan_disk
+add 20
+print
+halt
