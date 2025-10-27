@@ -76,9 +76,11 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 		public void reduce(Text key,
 				Iterable<HashMapStringIntWritable> stripes, Context context)
 				throws IOException, InterruptedException {
+			// clear agg stripe for this key
 			SUM_STRIPES.clear();
+
 			for (HashMapStringIntWritable stripe : stripes){
-				SUM_STRIPES.plus(stripe);
+				SUM_STRIPES.plus(stripe); // adds all counts for the same right words
 			}
 
 			int sum = 0;
@@ -112,6 +114,7 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 				Iterable<HashMapStringIntWritable> stripes, Context context)
 				throws IOException, InterruptedException {
 			for (HashMapStringIntWritable stripe : stripes) {
+
 				SUM_STRIPES.plus(stripe);
 			}
 			context.write(key, SUM_STRIPES);
