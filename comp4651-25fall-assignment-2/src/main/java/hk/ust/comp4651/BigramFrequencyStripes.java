@@ -50,7 +50,7 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String line = ((Text) value).toString();
-			String[] words = line.trim().split("\\s+");
+    		String[] words = line.trim().split("\\s+");
 
 			for(int i=0; i < words.length -1; i++){
 				String leftWord = words[i].replaceAll("\\W", "").toLowerCase();
@@ -58,7 +58,8 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 
 				if(!leftWord.isEmpty() && !rightWord.isEmpty()){
 					STRIPE.clear();
-					STRIPE.put(rightWord, 1)
+					
+					STRIPE.put(rightWord, new IntWritable(1));
 
 					KEY.set(leftWord);
 					context.write(KEY, STRIPE);
@@ -87,23 +88,23 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 			for(HashMapStringIntWritable stripe : stripes){
 				for (Map.Entry<String, IntWritable> entry : stripe.entrySet()){
 					String rightWord = entry.getKey();
-					int count = entry.getValue();
+					int count = entry.getValue().get();
 					SUM_STRIPES.increment(rightWord, count);
 				}
 			}
 
 			int total = 0;
-			for (int count : SUM_STRIPES.values()) {
-				total += count;
+			for (IntWritable count : SUM_STRIPES.values()) {
+				total += count.get();
 			}
 
 			BIGRAM.set(key.toString(), "");
 			FREQ.set((float) total);
 			context.write(BIGRAM, FREQ);
 
-			for (Map.Entry<String, Integer> entry : SUM_STRIPES.entrySet()) {
+			for (Map.Entry<String, IntWritable> entry : SUM_STRIPES.entrySet()) {
 				String rightWord = entry.getKey();
-				int count = entry.getValue();
+				int count = entry.getValue().get();  
 				float relativeFrequency = (float) count / total;
 				
 				BIGRAM.set(key.toString(), rightWord);
@@ -129,9 +130,9 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 			SUM_STRIPES.clear();
     
 			for (HashMapStringIntWritable stripe : stripes) {
-				for (Map.Entry<String, Integer> entry : stripe.entrySet()) {
+				for (Map.Entry<String, IntWritable> entry : stripe.entrySet()) {
 					String rightWord = entry.getKey();
-					int count = entry.getValue();
+					int count = entry.getValue().get();
 					SUM_STRIPES.increment(rightWord, count);
 				}
 			}
