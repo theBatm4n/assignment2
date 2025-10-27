@@ -113,6 +113,7 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 		public void reduce(Text key,
 				Iterable<HashMapStringIntWritable> stripes, Context context)
 				throws IOException, InterruptedException {
+			SUM_STRIPES.clear();
 			for (HashMapStringIntWritable stripe : stripes) {
 
 				SUM_STRIPES.plus(stripe);
@@ -219,4 +220,5 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 	public static void main(String[] args) throws Exception {
 		ToolRunner.run(new BigramFrequencyStripes(), args);
 	}
+
 }
